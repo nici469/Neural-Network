@@ -70,6 +70,13 @@ namespace Counter_Console
         int Ttrue;
 
         /// <summary>
+        /// the distance between similar positions between timesteps;
+        /// or the line distance between the start signatures of two adjacent timestep data in the filePath
+        /// </summary>
+        int K;
+
+
+        /// <summary>
         /// set to true if an object of the class is initialised properly through the designated 
         /// constructors. defaults to false otherwise
         /// </summary>
@@ -105,20 +112,66 @@ namespace Counter_Console
         public void Init() {
             //check to ensure the object of the MLFileReader class has been properly initialised
             if (objectInitialised == false) { throw new Exception("MLFileReader object was not properly initialised"); }
+            
+            //read all the lines of string in the filePath into an array
             lines = File.ReadAllLines(filePath);
+
+            //the first timestep as seen in the file arrangement, is the 4th element of the lines array. 
+            //which corresponds to the 3rd index. 
+            Tfirst = int .Parse(lines[3]);
+
+            //all timesteps start from 1, and is never zero. if it is zero, throw an exception
+            if (Tfirst==0) { 
+                throw new Exception("inavlid file: the first timestep could not be read"); 
+            }
+
+            Ni = int.Parse(lines[0]);//Ni is the first element of the lines array
+            No = int.Parse(lines[1]);//Ni is the second element of the lines array
+            K = Ni + No + 2 + 2;//Ni+No data plus 2ts+ 2signatures per timestep
+
+            //neither Ni nor No can be zero
+            if (No == 0 || Ni == 0){throw new Exception("inavlid file: missing training data"); }
+
+            firstEndSignPos = startSignPos + Ni + No + 2;// it is Ni +No +2(Timesteps) +1 away from the startSignature
+
+            Ttrue = CheckDataIntegrity();
+            string[] trueFile = CutFileString(lines, Ttrue, K);
+
+            CondenseMLArrays();//pause point
+
         }
 
+        void CondenseMLArrays() { }
+        /// <summary>
+        /// checks the integrity of the string[] data array. 
+        /// it returns the longest continuous and valid number of timesteps from that starts from the first timestep.
+        /// this method is not yet initialised
+        /// </summary>
+        int CheckDataIntegrity() {
+            int intOutput=0;
+            return intOutput;
+        }
+
+
+        /// <summary>
+        /// this method is not yet initialised.
+        /// it custs out a specified number of timesteps from a string array of file lines
+        /// </summary>
+        /// <param name="lineData"></param>
+        /// <param name="noOfTimesteps"></param>
+        /// <param name="timeStepDistance"></param>
+        /// <returns></returns>
+        string[] CutFileString(string[] lineData, int noOfTimesteps, int timeStepDistance)
+        {
+            string[] outputString = new string[0];
+            return outputString;
+        }
         /// <summary>
         /// Jagged array containig the ML input data in format [Timestep] [dataId] or
         /// [T][Ni]
         /// </summary>
         private double[][] TOutput;
         
-        
-        public void Init()
-        {
-            
-
-        }
+      
     }
 }

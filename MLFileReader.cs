@@ -147,7 +147,7 @@ namespace Counter_Console
         /// it returns the longest continuous and valid number of timesteps from that starts from the first timestep.
         /// this method is not yet initialised
         /// </summary>
-        int CheckDataIntegrity() {
+        int CheckDataIntegrity() { 
             int intOutput=0;
             return intOutput;
         }

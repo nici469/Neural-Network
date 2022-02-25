@@ -101,6 +101,9 @@ namespace Counter_Console
             startSignPos = StartSignPos;
             filePath = FilePath;
             objectInitialised = true;
+            startSign = "TimeStep_Start";
+            endSign = "TimeStep_End";
+            Init();
         }
         
 
@@ -109,7 +112,12 @@ namespace Counter_Console
         /// the filePath as an array, calls CheckDataIntegrity, calls CutFileString to cut out the relevant part 
         /// of the string[] array gotten from filepath, and calls CondenseMLArrays
         /// </summary>
-        public void Init() {
+         void Init() {
+            //chack to ensure the start and end signatures have been initialised
+            if (startSign == null || endSign == null)
+              { 
+                throw new Exception("a timestep signature has not been initialised or is an emptyvstring"); 
+            }
             //check to ensure the object of the MLFileReader class has been properly initialised
             if (objectInitialised == false) { throw new Exception("MLFileReader object was not properly initialised"); }
             
@@ -134,22 +142,101 @@ namespace Counter_Console
 
             firstEndSignPos = startSignPos + Ni + No + 2;// it is Ni +No +2(Timesteps) +1 away from the startSignature
 
-            Ttrue = CheckDataIntegrity();
-            string[] trueFile = CutFileString(lines, Ttrue, K);
+            Ttrue = CheckDataIntegrity(lines,K);
+            string[] trueFile = CutFileString(lines, Ttrue, K);//paused
 
-            CondenseMLArrays();//pause point
+            CondenseMLArrays();
 
         }
-
-        void CondenseMLArrays() { }
         /// <summary>
-        /// checks the integrity of the string[] data array. 
+        /// saves the validated training data input and target output set to MLInput[][] and TOutput[]
+        /// </summary>
+        void CondenseMLArrays() { }
+
+        /// <summary>
+        /// checks the integrity of the stringLines[] data array. 
         /// it returns the longest continuous and valid number of timesteps from that starts from the first timestep.
         /// this method is not yet initialised
         /// </summary>
-        int CheckDataIntegrity() { 
-            int intOutput=0;
-            return intOutput;
+        int CheckDataIntegrity(string[] stringLines, int timeStepDistance) {
+            int noOfLines = stringLines.Length;
+            //for the data to be valid, the number of lines must at least be more than 2(Ni, No)+ 4(2 signs, 2Ts) + 2(1-input and 1 targetv output)
+            if (noOfLines < 8)
+            {
+                throw new Exception("invalid or incomplete data: data length too small");
+            }
+            //The line just before the last line should contain the last timestep vale in the file
+            int Tfile = int.Parse(stringLines[noOfLines - 2]);
+            Ttest = (noOfLines - 2) / timeStepDistance;//the estimated- number of timesteps in the file
+
+            //if the estimated number o timesteps in the file is not equal to the value of the supposed last timestep in the file
+            //it is either the file is broken or it does not start from timestep 1
+            if (Ttest != Tfile)
+            {
+                Console.WriteLine("File is broken or does not start from timestep 1: Ttest!=Tfile");
+            }
+
+            //chack to ensure the start and end signatures have been initialised
+            if (startSign == null || endSign == null){throw new Exception("a timestep signature has not been initialised or is an empty string");  }
+            
+            //check to ensure the first starting and ending signature positions are initialised
+            if (startSignPos == 0 || firstEndSignPos == 0)
+            {
+                throw new Exception("either the position of the first start sign or the first end sign has not been initialised");
+            }
+
+            //the validated number of timesteps, or the number of continuous validated timesteps 
+            int Tv = 0;
+
+
+            //iterate through the data in the file; if the file has no errors, this would be iterating through the timesteps
+            //in the file
+            for (int i = 0; i < Ttest; i++)
+            {   
+                //Read the timestep value one line below the starting signature
+                int timeStpValue = int.Parse(stringLines[startSignPos + 1 + i * timeStepDistance]);
+                //Read the repeated timestep value one line above the ending signature of each timestep
+                int repeatedTstep = int.Parse(stringLines[firstEndSignPos - 1 + i * timeStepDistance]);
+
+                //check for presence of the correct starting signature in each timestep
+                if (stringLines[startSignPos + i * timeStepDistance] != startSign )
+                {
+                    //return Tv, throw warning or break
+                }
+
+                //check for presence of the correct ending signature in each timestep
+                else if (stringLines[firstEndSignPos + i * timeStepDistance] != endSign)
+                {
+                    //return Tv, throw warning or break
+                }
+
+                //Note: all timesteps must have a value >=1. a timestep variable value can only be zero if not initialised
+                //if Tfirst has not been read or the timestep value read in each iteration after the 
+                //startSignature does not follow properly from Tfirst, then
+                else if ((Tfirst==0)||timeStpValue!= (i+Tfirst))
+                {
+                    //return Tv, throw warning or break
+                }
+
+                //check to the timestep value just before the ending signature: the timestep value is writtn twice for each timestep
+                else if (repeatedTstep != i + Tfirst)
+                {
+                    //return Tv, throw warning or break
+                }
+                //otherwise, if all checks went well, we have found a valid timestep
+                else
+                {
+                    Tv++;
+                }
+
+
+                
+
+            }
+            //return the number of valid and continuous timesteps that follow incrementally from the first timestep in the file
+            return Tv;
+
+           
         }
 
 
@@ -163,6 +250,7 @@ namespace Counter_Console
         /// <returns></returns>
         string[] CutFileString(string[] lineData, int noOfTimesteps, int timeStepDistance)
         {
+            //this method is next
             string[] outputString = new string[0];
             return outputString;
         }

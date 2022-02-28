@@ -45,5 +45,10 @@ namespace Counter_Console
             Console.ReadKey(true);
 
         }
+
+        static void TestMLFileReader()
+        {
+            Console.WriteLine("MLReader validated");
+        }
     }
 }

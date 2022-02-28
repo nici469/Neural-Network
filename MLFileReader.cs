@@ -67,7 +67,7 @@ namespace Counter_Console
         /// to store the number of continuous unbroken and validated timesteps that progress
         /// smoothly from the first timestep
         /// </summary>
-        int Ttrue;
+        int TNtrue;
 
         /// <summary>
         /// the distance between similar positions between timesteps;
@@ -143,10 +143,10 @@ namespace Counter_Console
             {
                 throw new Exception("a timestep signature has not been initialised or is an emptyvstring");
             }
-            Ttrue = CheckDataIntegrity(lines,K,Tfirst,startSign,endSign,startSignPos,firstEndSignPos);
-            string[] trueFile = CutFileString(lines, Ttrue, K);//paused
+            TNtrue = CheckDataIntegrity(lines,K,Tfirst,startSign,endSign,startSignPos,firstEndSignPos);
+            string[] trueFile = CutFileString(lines, TNtrue, K);//paused
 
-            CondenseMLArrays(trueFile,Ttrue,K,Ni,No);
+            CondenseMLArrays(trueFile,TNtrue,K,Ni,No);
 
         }
         /// <summary>
@@ -237,12 +237,16 @@ namespace Counter_Console
                 //check for presence of the correct starting signature in each timestep
                 if (stringLines[StartSignPos + i * timeStepDistance] != StartSign )
                 {
+                    return Tv;
+                    break;
                     //return Tv, throw warning or break
                 }
 
                 //check for presence of the correct ending signature in each timestep
                 else if (stringLines[FirstEndSignPos + i * timeStepDistance] != EndSign)
                 {
+                    return Tv;
+                    break;
                     //return Tv, throw warning or break
                 }
 
@@ -251,12 +255,16 @@ namespace Counter_Console
                 //startSignature does not follow properly from Tfirst, then
                 else if ((firstTimestep==0)||timeStpValue!= (i+firstTimestep))
                 {
+                    return Tv;
+                    break;
                     //return Tv, throw warning or break
                 }
 
                 //check to the timestep value just before the ending signature: the timestep value is writtn twice for each timestep
                 else if (repeatedTstep != i + firstTimestep)
                 {
+                    return Tv;
+                    break;
                     //return Tv, throw warning or break
                 }
                 //otherwise, if all checks went well, we have found a valid timestep
@@ -314,7 +322,7 @@ namespace Counter_Console
 
         /// <summary>
         /// used to safely return Target output data for an ML training algorithm.
-        /// it returns TOutput[T][No]
+        /// it returns TOutput[T][No]. They are  called externally
         /// </summary>
         /// <returns></returns>
         public double[][] GetTargetOutput()
@@ -324,7 +332,7 @@ namespace Counter_Console
         }
 
         /// <summary>
-        /// for safely replicating a jagged array of dimension [][]
+        /// for safely replicating a jagged array of dimension [][]. called externally
         /// </summary>
         /// <param name="arrayInput"></param>
         /// <returns></returns>

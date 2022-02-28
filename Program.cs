@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Counter_Console
 {
@@ -43,11 +44,30 @@ namespace Counter_Console
 
 
             Console.ReadKey(true);
+            Console.WriteLine("Beginning testing of MLFileReader...");
+            Console.ReadKey(true);
+
+            TestMLFileReader();
+
 
         }
 
         static void TestMLFileReader()
         {
+            string fileString = "C:\\Users\\IT-IandE\\Desktop\\TestMLReader.txt";
+            string[] lines = File.ReadAllLines(fileString);
+            if (lines.Length == 0) throw new Exception("no file was read in the location specified");
+
+            //test CutFileString
+            MLFileReader myReader =new MLFileReader();
+            //string[] cutString=myReader.CutFileString(lines,3,6);
+
+            
+            int TNtrue = myReader.CheckDataIntegrity(lines, 8,1, "TimeStep_Start","TimeStep_End",2,9);
+            string[] cutstring = myReader.CutFileString(lines, TNtrue, 8);
+            myReader.CondenseMLArrays(cutstring, TNtrue, 8, 2, 2);
+
+
             Console.WriteLine("MLReader validated");
         }
     }

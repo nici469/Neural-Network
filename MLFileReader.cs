@@ -88,7 +88,8 @@ namespace Counter_Console
         /// </summary>
         public MLFileReader()
         {
-            throw new Exception("MLFileReader object cannot be initialised with empty constructor");
+            //re-expose this exception after testing
+            //throw new Exception("MLFileReader object cannot be initialised with empty constructor");
         }
         /// <summary>
         /// StartSignPos is the position of the first start-signature in the File;
@@ -190,7 +191,7 @@ namespace Counter_Console
         /// <param name="StartSignPos"></param>
         /// <param name="FirstEndSignPos"></param>
         /// <returns></returns>
-        int CheckDataIntegrity(string[] stringLines, int timeStepDistance,int firstTimestep, string StartSign, string EndSign,int StartSignPos,int FirstEndSignPos) {
+        public int CheckDataIntegrity(string[] stringLines, int timeStepDistance,int firstTimestep, string StartSign, string EndSign,int StartSignPos,int FirstEndSignPos) {
             /// <summary>
             /// to store the estimated number of timesteps in the file
             /// </summary>
@@ -237,6 +238,7 @@ namespace Counter_Console
                 //check for presence of the correct starting signature in each timestep
                 if (stringLines[StartSignPos + i * timeStepDistance] != StartSign )
                 {
+                    //throw new Exception("unrecognised starting signature");
                     return Tv;
                     break;
                     //return Tv, throw warning or break
@@ -245,6 +247,7 @@ namespace Counter_Console
                 //check for presence of the correct ending signature in each timestep
                 else if (stringLines[FirstEndSignPos + i * timeStepDistance] != EndSign)
                 {
+                    //throw new Exception("unrecognised ending signature");
                     return Tv;
                     break;
                     //return Tv, throw warning or break
@@ -255,6 +258,7 @@ namespace Counter_Console
                 //startSignature does not follow properly from Tfirst, then
                 else if ((firstTimestep==0)||timeStpValue!= (i+firstTimestep))
                 {
+                    //throw new Exception("break or invalid point in timestep continuity detected");
                     return Tv;
                     break;
                     //return Tv, throw warning or break
@@ -263,6 +267,7 @@ namespace Counter_Console
                 //check to the timestep value just before the ending signature: the timestep value is writtn twice for each timestep
                 else if (repeatedTstep != i + firstTimestep)
                 {
+                    //throw new Exception("break or invalid point in timestep continuity detected");
                     return Tv;
                     break;
                     //return Tv, throw warning or break
@@ -287,6 +292,7 @@ namespace Counter_Console
         /// <summary>
         /// this method is not yet initialised.
         /// it custs out a specified number of timesteps from a string array of file lines
+        /// the lines containing the values of Ni and No will no longer be included
         /// </summary>
         /// <param name="lineData"></param>
         /// <param name="noOfTimesteps"></param>

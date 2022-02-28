@@ -24,11 +24,7 @@ namespace Counter_Console
         /// </summary>
         private string filePath;
 
-        /// <summary>
-        /// an array to store the lines of string read from filePath
-        /// </summary>
-        string[] lines;
-
+        
         /// <summary>
         /// used to store the position of the start signature of the first timestep in the filePath
         /// </summary>
@@ -51,18 +47,22 @@ namespace Counter_Console
 
         /// <summary>
         /// Jagged array containig the ML input data in format [Timestep] [dataId] or
-        /// [T][Nc]
+        /// [T][Ni]
         /// </summary>
         private double[][] MLInput;
 
         /// <summary>
-        /// to store the first timestep value in the filePath
+        /// Jagged array to store the ML target output data in the format [Timestep] [dataId]
+        /// or [T][No]
+        /// </summary>
+        private double[][] TOutput;
+
+        /// <summary>
+        /// to store the first timestep value in the filePath. (to be demoted from field variableand 
+        /// made a method-local variable)
         /// </summary>
         int Tfirst;
-        /// <summary>
-        /// to store the estimated number of timesteps in the file
-        /// </summary>
-        int Ttest;
+        
         /// <summary>
         /// to store the number of continuous unbroken and validated timesteps that progress
         /// smoothly from the first timestep
@@ -112,17 +112,13 @@ namespace Counter_Console
         /// the filePath as an array, calls CheckDataIntegrity, calls CutFileString to cut out the relevant part 
         /// of the string[] array gotten from filepath, and calls CondenseMLArrays
         /// </summary>
-         void Init() {
-            //chack to ensure the start and end signatures have been initialised
-            if (startSign == null || endSign == null)
-              { 
-                throw new Exception("a timestep signature has not been initialised or is an emptyvstring"); 
-            }
+         public void Init() {
+            
             //check to ensure the object of the MLFileReader class has been properly initialised
             if (objectInitialised == false) { throw new Exception("MLFileReader object was not properly initialised"); }
             
             //read all the lines of string in the filePath into an array
-            lines = File.ReadAllLines(filePath);
+            string[] lines = File.ReadAllLines(filePath);
 
             //the first timestep as seen in the file arrangement, is the 4th element of the lines array. 
             //which corresponds to the 3rd index. 
@@ -130,7 +126,7 @@ namespace Counter_Console
 
             //all timesteps start from 1, and is never zero. if it is zero, throw an exception
             if (Tfirst==0) { 
-                throw new Exception("inavlid file: the first timestep could not be read"); 
+                throw new Exception("invalid file: the first timestep could not be read"); 
             }
 
             Ni = int.Parse(lines[0]);//Ni is the first element of the lines array
@@ -140,25 +136,65 @@ namespace Counter_Console
             //neither Ni nor No can be zero
             if (No == 0 || Ni == 0){throw new Exception("inavlid file: missing training data"); }
 
-            firstEndSignPos = startSignPos + Ni + No + 2;// it is Ni +No +2(Timesteps) +1 away from the startSignature
+            firstEndSignPos = startSignPos + Ni + No + 2+1;// it is Ni +No +2(Timesteps) +1 away from the startSignature
 
-            Ttrue = CheckDataIntegrity(lines,K);
+            //chack to ensure the start and end signatures have been initialised
+            if (startSign == null || endSign == null)
+            {
+                throw new Exception("a timestep signature has not been initialised or is an emptyvstring");
+            }
+            Ttrue = CheckDataIntegrity(lines,K,Tfirst,startSign,endSign,startSignPos,firstEndSignPos);
             string[] trueFile = CutFileString(lines, Ttrue, K);//paused
 
-            CondenseMLArrays();
+            CondenseMLArrays(trueFile,Ttrue,K,Ni,No);
 
         }
         /// <summary>
         /// saves the validated training data input and target output set to MLInput[][] and TOutput[]
+        /// ::inDataLength And outDataLength are the number of training input and output variables captured in each timestep
+        /// respectively. They correspond to Ni and No (public fields)
         /// </summary>
-        void CondenseMLArrays() { }
+        public void CondenseMLArrays(string[] lines, int noOfTimesteps, int timeStepDistance, int inDataLength, int outDataLength) {
+            MLInput = new double[noOfTimesteps][];
+            TOutput = new double[noOfTimesteps][];
+
+            for(int i = 0; i < noOfTimesteps; i++){//iterate through each timestep
+                //the training input data begins two rows after the timestep signature, 
+                //which should be the first element of the string[] lines arraay
+                int inDataStart =i*timeStepDistance+2;
+                int outDataStart =i*timeStepDistance+2+inDataLength;
+
+                MLInput[i] = new double[inDataLength];//initialise the training input array for the current timestep
+                for(int n = 0; n < inDataLength; n++){//iterate through the elements
+                    MLInput[i][n] = double.Parse(lines[inDataStart + n]);
+                }
+
+                TOutput[i] = new double[outDataLength];//initialise the target output array for the current timestep
+                for (int n = 0; n < outDataLength; n++){//iterate through the elements
+                    TOutput[i][n] = double.Parse(lines[outDataStart + n]);
+                }
+
+            }
+           
+        }
 
         /// <summary>
-        /// checks the integrity of the stringLines[] data array. 
+        /// /// checks the integrity of the stringLines[] data array. 
         /// it returns the longest continuous and valid number of timesteps from that starts from the first timestep.
-        /// this method is not yet initialised
+        /// this method is not yet initialised. StartSign is the starting signature, StartSignPos is the position of the first start sign
         /// </summary>
-        int CheckDataIntegrity(string[] stringLines, int timeStepDistance) {
+        /// <param name="stringLines"></param>
+        /// <param name="timeStepDistance"></param>
+        /// <param name="StartSign"></param>
+        /// <param name="EndSign"></param>
+        /// <param name="StartSignPos"></param>
+        /// <param name="FirstEndSignPos"></param>
+        /// <returns></returns>
+        int CheckDataIntegrity(string[] stringLines, int timeStepDistance,int firstTimestep, string StartSign, string EndSign,int StartSignPos,int FirstEndSignPos) {
+            /// <summary>
+            /// to store the estimated number of timesteps in the file
+            /// </summary>
+            int Ttest;
             int noOfLines = stringLines.Length;
             //for the data to be valid, the number of lines must at least be more than 2(Ni, No)+ 4(2 signs, 2Ts) + 2(1-input and 1 targetv output)
             if (noOfLines < 8)
@@ -177,10 +213,10 @@ namespace Counter_Console
             }
 
             //chack to ensure the start and end signatures have been initialised
-            if (startSign == null || endSign == null){throw new Exception("a timestep signature has not been initialised or is an empty string");  }
+            if (StartSign == null || EndSign == null){throw new Exception("a timestep signature has not been initialised or is an empty string");  }
             
             //check to ensure the first starting and ending signature positions are initialised
-            if (startSignPos == 0 || firstEndSignPos == 0)
+            if (StartSignPos == 0 || FirstEndSignPos == 0)
             {
                 throw new Exception("either the position of the first start sign or the first end sign has not been initialised");
             }
@@ -194,18 +230,18 @@ namespace Counter_Console
             for (int i = 0; i < Ttest; i++)
             {   
                 //Read the timestep value one line below the starting signature
-                int timeStpValue = int.Parse(stringLines[startSignPos + 1 + i * timeStepDistance]);
+                int timeStpValue = int.Parse(stringLines[StartSignPos + 1 + i * timeStepDistance]);
                 //Read the repeated timestep value one line above the ending signature of each timestep
-                int repeatedTstep = int.Parse(stringLines[firstEndSignPos - 1 + i * timeStepDistance]);
+                int repeatedTstep = int.Parse(stringLines[FirstEndSignPos - 1 + i * timeStepDistance]);
 
                 //check for presence of the correct starting signature in each timestep
-                if (stringLines[startSignPos + i * timeStepDistance] != startSign )
+                if (stringLines[StartSignPos + i * timeStepDistance] != StartSign )
                 {
                     //return Tv, throw warning or break
                 }
 
                 //check for presence of the correct ending signature in each timestep
-                else if (stringLines[firstEndSignPos + i * timeStepDistance] != endSign)
+                else if (stringLines[FirstEndSignPos + i * timeStepDistance] != EndSign)
                 {
                     //return Tv, throw warning or break
                 }
@@ -213,13 +249,13 @@ namespace Counter_Console
                 //Note: all timesteps must have a value >=1. a timestep variable value can only be zero if not initialised
                 //if Tfirst has not been read or the timestep value read in each iteration after the 
                 //startSignature does not follow properly from Tfirst, then
-                else if ((Tfirst==0)||timeStpValue!= (i+Tfirst))
+                else if ((firstTimestep==0)||timeStpValue!= (i+firstTimestep))
                 {
                     //return Tv, throw warning or break
                 }
 
                 //check to the timestep value just before the ending signature: the timestep value is writtn twice for each timestep
-                else if (repeatedTstep != i + Tfirst)
+                else if (repeatedTstep != i + firstTimestep)
                 {
                     //return Tv, throw warning or break
                 }
@@ -248,18 +284,52 @@ namespace Counter_Console
         /// <param name="noOfTimesteps"></param>
         /// <param name="timeStepDistance"></param>
         /// <returns></returns>
-        string[] CutFileString(string[] lineData, int noOfTimesteps, int timeStepDistance)
+        public string[] CutFileString(string[] lineData, int noOfTimesteps, int timeStepDistance)
         {
-            //this method is next
-            string[] outputString = new string[0];
+            string[] outputString = new string[timeStepDistance*noOfTimesteps];//the output will not contain Ni and No again
+            
+            //iterate through timesteps
+            for (int t = 0; t < noOfTimesteps; t++)
+            {
+                //iterate wuthin the timestep
+                for (int j = 0; j < timeStepDistance; j++)
+                {
+                    outputString[t * timeStepDistance + j] = lineData[t * timeStepDistance + j + 2];//the "2" represents Ni and No that are nolonger included
+
+                }
+            }
             return outputString;
         }
+
         /// <summary>
-        /// Jagged array containig the ML input data in format [Timestep] [dataId] or
-        /// [T][Ni]
+        /// used to safely return training Input data for an ML training algorithm. it 
+        /// returns MLInput[T][Ni]
         /// </summary>
-        private double[][] TOutput;
-        
-      
+        /// <returns></returns>
+        public double [][] GetTrainingInput()
+        {
+            return new double[0][];
+        }
+
+        /// <summary>
+        /// used to safely return Target output data for an ML training algorithm.
+        /// it returns TOutput[T][No]
+        /// </summary>
+        /// <returns></returns>
+        public double[][] GetTargetOutput()
+        {
+            return new double[0][];
+        }
+
+        double[][] ArrayCopy()
+        {
+
+        }
+
+
+
+
+
+
     }
 }

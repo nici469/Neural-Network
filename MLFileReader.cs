@@ -89,7 +89,7 @@ namespace Counter_Console
         public MLFileReader()
         {
             //re-expose this exception after testing
-            //throw new Exception("MLFileReader object cannot be initialised with empty constructor");
+            throw new Exception("MLFileReader object cannot be initialised with empty constructor");
         }
         /// <summary>
         /// StartSignPos is the position of the first start-signature in the File;

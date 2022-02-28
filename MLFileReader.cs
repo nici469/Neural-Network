@@ -81,6 +81,10 @@ namespace Counter_Console
         /// constructors. defaults to false otherwise
         /// </summary>
         bool objectInitialised;
+        /// <summary>
+        /// set to true only if Init() method is successful
+        /// </summary>
+        bool arrayCondensed;
 
         /// <summary>
         /// an empty constructor of the MLFileReader class is not allowed. An object of the class should
@@ -148,7 +152,7 @@ namespace Counter_Console
             string[] trueFile = CutFileString(lines, TNtrue, K);//paused
 
             CondenseMLArrays(trueFile,TNtrue,K,Ni,No);
-
+            arrayCondensed = true;
         }
         /// <summary>
         /// saves the validated training data input and target output set to MLInput[][] and TOutput[]
@@ -317,24 +321,37 @@ namespace Counter_Console
 
         /// <summary>
         /// used to safely return training Input data for an ML training algorithm. it 
-        /// returns MLInput[T][Ni]
+        /// returns MLInput[T][Ni]. it will only work if CondenseMLArrays has been successfully completed, otherwise it
+        /// throws an exception
         /// </summary>
         /// <returns></returns>
         public double [][] GetTrainingInput()
         {
-            double[][] output = ArrayCopy(MLInput);
-            return output;
+            if (arrayCondensed)
+            {
+                double[][] output = ArrayCopy(MLInput);
+                return output;
+            }
+            else { throw new Exception("ML [][] arrays have not been successfully condensed"); }
+
         }
 
         /// <summary>
         /// used to safely return Target output data for an ML training algorithm.
-        /// it returns TOutput[T][No]. They are  called externally
+        /// it returns TOutput[T][No]. They are  called externally. 
+        /// it will only work if CondenseMLArrays has been successfully completed, otherwise it
+        /// throws an exception
         /// </summary>
         /// <returns></returns>
         public double[][] GetTargetOutput()
         {
-            double[][] output = ArrayCopy(TOutput);
-            return output;
+            if (arrayCondensed)
+            {
+                double[][] output = ArrayCopy(TOutput);
+                return output;
+            }
+            else { throw new Exception("ML [][] arrays have not been successfully condensed"); }
+            
         }
 
         /// <summary>

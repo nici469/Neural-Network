@@ -60,6 +60,7 @@ namespace Counter_Console
 
             //test CutFileString
             //MLFileReader myReader =new MLFileReader();
+            //double[][] d = myReader.GetTargetOutput();
             //string[] cutString=myReader.CutFileString(lines,3,6);
 
             
@@ -68,6 +69,9 @@ namespace Counter_Console
             //myReader.CondenseMLArrays(cutstring, TNtrue, 8, 2, 2);
 
             MLFileReader newReader=new MLFileReader(2,fileString);
+            double[][] TestToutput = newReader.GetTargetOutput();
+            double[][] TestMLInput = newReader.GetTrainingInput();
+
 
             Console.WriteLine("MLReader validated");
         }

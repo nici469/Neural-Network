@@ -1,0 +1,24 @@
+File Start
+Ni	//the total number of data points captured as input in each timestep
+No	//the total number of data captured as target output in each timestep
+TimeStep_Start //the start signature for each timestep
+t	//the timestep value. it starts from 1, and is never zero
+X1	//input 1
+X2
+.
+.
+Xni	//X's are the training input. there are Ni number of them
+Y1	//target output 1
+Y2
+.
+.
+Yno	//Y's are the target outputs. there are No number of them
+t	//the timestep value
+TimeStep_End	//the end signature for each timestep
+TimeStep_Start	//the start signature for the next timestep
+...
+TimeStep_End
+
+Notes: adding the timestep value near the end of each timestep data ensures that the total number
+of timesteps to be stored in or read from a file does not have to be known in advance. it can simply
+be read form the file

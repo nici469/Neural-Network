@@ -308,7 +308,8 @@ namespace Counter_Console
         /// <returns></returns>
         public double [][] GetTrainingInput()
         {
-            return new double[0][];
+            double[][] output = ArrayCopy(MLInput);
+            return output;
         }
 
         /// <summary>
@@ -318,12 +319,35 @@ namespace Counter_Console
         /// <returns></returns>
         public double[][] GetTargetOutput()
         {
-            return new double[0][];
+            double[][] output = ArrayCopy(TOutput);
+            return output;
         }
 
-        double[][] ArrayCopy()
+        /// <summary>
+        /// for safely replicating a jagged array of dimension [][]
+        /// </summary>
+        /// <param name="arrayInput"></param>
+        /// <returns></returns>
+        double[][] ArrayCopy(double[][] arrayInput)
         {
+            //get the number of children array in the parent jagged array
+            int noOFChildArray = arrayInput.Length;
+            
+            double[][] outputArray = new double[noOFChildArray][];
 
+            for(int i = 0; i < noOFChildArray; i++) {//iterate through all the child arrays in the jagged array
+                //get the number of element in each child array
+                int noOfElements = arrayInput[i].Length;
+                          
+                outputArray[i] = new double[noOfElements];
+                for(int j = 0; j < noOfElements; j++)
+                {
+                    outputArray[i][j] = arrayInput[i][j];
+                }
+
+            }
+
+            return outputArray;
         }
 
 

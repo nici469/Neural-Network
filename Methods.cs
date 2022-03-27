@@ -331,7 +331,7 @@ namespace Counter_Console
                 {
                     output[i] = input[i];
                 }
-                else { output[i] = 0.3*input[i]; }
+                else { output[i] = 0.1*input[i]; }
             }
             return output;
         }
@@ -355,7 +355,7 @@ namespace Counter_Console
             for(int i=0;i< N; i++)
             {
                 if (input[i] > 0) { output[i] = 1; }
-                else { output[i] = 0.3; }
+                else { output[i] = 0.1; }
             }
             return output; 
         }

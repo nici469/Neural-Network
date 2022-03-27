@@ -32,7 +32,7 @@ namespace Counter_Console
             XJ = new double[L, T][];
 
             DYJ = new double[L, T][];
-            DYNJ = new double[L, T][];           
+            DYNJ = new double[L, T][];
             DXJ = new double[L, T][];
 
             BaseT = new double[T][];
@@ -113,11 +113,11 @@ namespace Counter_Console
             {//rows
                 for (int j = 0; j < nn; j++)
                 {//columns
-                  double sign = myRandom.NextDouble();
-                 if (sign > 0.5) { output[i, j] = myRandom.NextDouble() * 0.05; }
-                 else { output[i, j] = myRandom.NextDouble() * 0.05*(-1); }
-                   // output[i, j] = myRandom.NextDouble() * 0.05;//change to 0.05//previously 0.2
-                                                                // output[i, j] = 1.0;//******************************remove thia
+                    double sign = myRandom.NextDouble();
+                    if (sign > 0.5) { output[i, j] = myRandom.NextDouble() * 0.05; }
+                    else { output[i, j] = myRandom.NextDouble() * 0.05 * (-1); }
+                    // output[i, j] = myRandom.NextDouble() * 0.05;//change to 0.05//previously 0.2
+                    // output[i, j] = 1.0;//******************************remove thia
                 }
 
             }
@@ -233,7 +233,7 @@ namespace Counter_Console
         public void SaveAllVariables(int l, int t)
         {
             YJ[l, t] = Y.data;
-            YNJ[l, t] = Yn.data;           
+            YNJ[l, t] = Yn.data;
             XJ[l, t] = X.data;
 
         }
@@ -249,7 +249,7 @@ namespace Counter_Console
             {
                 Yt_1 = new Vector(D);
             }
-            Yn = Wi * X + Ui * Yt_1+Bi;
+            Yn = Wi * X + Ui * Yt_1 + Bi;
             Y = M.ReLU(Yn);
         }
 
@@ -283,7 +283,7 @@ namespace Counter_Console
         /// <param name="l"></param>
         /// <param name="t"></param>
         public void InitVariableVectors(int l, int t)
-        {           
+        {
             Y.data = new double[0];
             Yn.data = new double[0];
             X.data = new double[0];
@@ -310,7 +310,7 @@ namespace Counter_Console
                 InitWeightGradients();
                 InitLayerMarices(l);
 
-                for (int t = incT - 1; t >= 0; t--)
+                for (int t = T - 1; t >= 0; t--)
                 {
                     InitVariableGradient();
                     LoadVariables(l, t);
@@ -321,11 +321,11 @@ namespace Counter_Console
                     dWi += dYn ^ X;
                     if (t > 0)
                     {
-                        Vector yt_1= new Vector(YJ[l,t-1]);// y at t-1
+                        Vector yt_1 = new Vector(YJ[l, t - 1]);// y at t-1
                         dUi += dYn ^ yt_1;
                     }
-                    
-                   
+
+
                     SaveVariableGradient(l, t);
                 }
                 //compute new weights
@@ -350,17 +350,17 @@ namespace Counter_Console
             if (l != L - 1) { Del.data = DXJ[l + 1, t]; }
             else { Del.data = M.elemSub(YJ[l, t], TargetOutputT[t]); }
 
-            if (t < incT - 1)
+            if (t < T - 1)
             {
-                dYnt1.data = DYNJ[l, t + 1];                
+                dYnt1.data = DYNJ[l, t + 1];
             }
             else
             {
-                dYnt1.data = new double[D];                
+                dYnt1.data = new double[D];
             }
 
 
-            Vector output = Del  + Ui.T() * dYnt1;
+            Vector output = Del + Ui.T() * dYnt1;
 
             return output;
         }
@@ -381,8 +381,8 @@ namespace Counter_Console
         /// initialise all variable gradient vector data to zero length arrays
         /// </summary>
         public void InitVariableGradient()
-        {            
-            dY.data = new double[0];            
+        {
+            dY.data = new double[0];
             dYn.data = new double[0];
             dX.data = new double[0];
         }

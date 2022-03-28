@@ -14,12 +14,24 @@ namespace Counter_Console
         {
 
         }
-        static void DoSomething()
+
+        static void DoSomething2()
         {
-            SampleGenerator myGenerator = new SampleGenerator();
-            myGenerator.GenerateData(100);
-            RELU_RNN_NEW brain = new RELU_RNN_NEW(new int[] { 1, 10,10,10, 1 }, 100);
-            brain.T = 20;
+            ///SampleGenerator myGenerator = new SampleGenerator();
+            SampleGeneratorClass myGenerator = new SampleGeneratorClass();
+            SampleGeneratorTimeless[] genArray = new SampleGeneratorTimeless[1000];
+
+            for (int i = 0; i < genArray.Length; i++)
+            {
+                genArray[i] = new SampleGeneratorTimeless();
+                genArray[i].GenerateData(1);
+            }
+
+            //myGenerator.GenerateData(100);
+            //NodeStruct mystruct = new NodeStruct(1, 1);
+            //LSTM_NEW brain = new LSTM_NEW(mystruct, new int[] { 5, 5 }, 100);
+            RELU_RNN_NEW brain = new RELU_RNN_NEW(new int[] { genArray[0].BaseT[0].Length,10, 10,10, 5, 1 }, 1);
+            //brain.T = 10;
             brain.TargetOutputT = myGenerator.TOutput;
             brain.BaseT = myGenerator.BaseT;
             double error = 2.0;
@@ -27,26 +39,125 @@ namespace Counter_Console
             {
                 while (error > 0.1)
                 {
-                    for (int h = 0; h < 10; h++)
+                    //reset the genData
+                    //for (int i = 0; i < genArray.Length; i++)
+                    //{
+                    //    genArray[i] = new SampleGeneratorClass();
+                    //    genArray[i].GenerateData(100);
+                    // }
+                    //reset error
+                    error = 0;
+                    for (int i = 0; i < genArray.Length; i++)
                     {
+                        brain.BaseT = genArray[i].BaseT;
+                        brain.TargetOutputT = genArray[i].TOutput;
                         brain.PropagateForward();
                         // Console.ReadKey(true);
                         brain.PropagateBackward();
                         // Console.ReadKey(true);
-                        error = brain.ComputeError();
-                        Console.WriteLine("error: " + error);
+                        error += (brain.ComputeError()) / genArray.Length;
+
                     }
-                    if (error < 0.1&&brain.T+2<100) brain.T += 2;
+
+                    Console.WriteLine("error: " + error);
+                   // if (error < 0.1 && brain.T + 2 < 100) brain.T += 2;
+                    //Console.ReadKey(true);
                 }
-                for (int h = 0; h < 10; h++)
+                error = 0;
+                for (int i = 0; i < genArray.Length; i++)
                 {
+                    brain.BaseT = genArray[i].BaseT;
+                    brain.TargetOutputT = genArray[i].TOutput;
                     brain.PropagateForward();
                     // Console.ReadKey(true);
                     brain.PropagateBackward();
                     // Console.ReadKey(true);
-                    error=brain.ComputeError();
-                    Console.WriteLine("error: " + error);
+                    error += (brain.ComputeError()) / genArray.Length;
+
                 }
+
+                Console.WriteLine("error: " + error);
+
+                Console.WriteLine("press key to continue");
+                string input = Console.ReadLine();
+                if (input == "test")
+                {
+                    brain.PropageForwardSingleTStep();
+                }
+                else if (input == "learn")
+                {
+                    brain.lnRate *= 0.5;
+                }
+                else if (input == "INCT" && brain.T <= 90)
+                {
+                    brain.T += 3;
+                }
+                Console.ReadKey(true);
+            }
+        }
+
+        static void DoSomething()
+        {
+            ///SampleGenerator myGenerator = new SampleGenerator();
+            SampleGeneratorClass myGenerator = new SampleGeneratorClass();
+            SampleGeneratorClass[] genArray = new SampleGeneratorClass[30];
+
+            for(int i = 0; i < genArray.Length; i++)
+            {
+                genArray[i] = new SampleGeneratorClass();
+                genArray[i].GenerateData(100);
+            }
+
+            //myGenerator.GenerateData(100);
+            //NodeStruct mystruct = new NodeStruct(1, 1);
+            //LSTM_NEW brain = new LSTM_NEW(mystruct, new int[] { 5, 5 }, 100);
+            RELU_RNN_NEW brain = new RELU_RNN_NEW(new int[] { 1, 10,10,5,5, 1 }, 100);
+            brain.T = 10;
+            brain.TargetOutputT = myGenerator.TOutput;
+            brain.BaseT = myGenerator.BaseT;
+            double error = 2.0;
+            while (true)
+            {
+                while (error > 0.1)
+                {
+                    //reset the genData
+                    //for (int i = 0; i < genArray.Length; i++)
+                    //{
+                    //    genArray[i] = new SampleGeneratorClass();
+                    //    genArray[i].GenerateData(100);
+                   // }
+                    //reset error
+                    error = 0;
+                        for(int i = 0; i < genArray.Length; i++)
+                        {
+                            brain.BaseT = genArray[i].BaseT;
+                            brain.TargetOutputT = genArray[i].TOutput;
+                            brain.PropagateForward();
+                            // Console.ReadKey(true);
+                            brain.PropagateBackward();
+                            // Console.ReadKey(true);
+                            error += (brain.ComputeError())/genArray.Length;
+                            
+                        }
+
+                    Console.WriteLine("error: " + error);
+                    if (error < 0.1&&brain.T+2<100) brain.T += 2;
+                    //Console.ReadKey(true);
+                }
+                error = 0;
+                for (int i = 0; i < genArray.Length; i++)
+                {
+                    brain.BaseT = genArray[i].BaseT;
+                    brain.TargetOutputT = genArray[i].TOutput;
+                    brain.PropagateForward();
+                    // Console.ReadKey(true);
+                    brain.PropagateBackward();
+                    // Console.ReadKey(true);
+                    error += (brain.ComputeError()) / genArray.Length;
+
+                }
+
+                Console.WriteLine("error: " + error);
 
                 Console.WriteLine("press key to continue");
                 string input = Console.ReadLine();
@@ -67,7 +178,7 @@ namespace Counter_Console
         }
         static void Main(string[] args)
         {
-            DoSomething();
+            DoSomething2();
             Methods M = new Methods();
             double[] v1 = { 1, 2 };
             Vector V1 = new Vector(v1);

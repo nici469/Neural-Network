@@ -298,7 +298,12 @@ namespace Counter_Console
                 if (l == 0) { X.data = input; }
                 else { X.data = ArrayCopy(YJ[l-1]); }
                 Yn = Wi * X + Bi;
-                Y = M.ReLU(Yn);
+
+                //use tanh for the last output for boundedness
+                //use the regular RELU on the other layers
+                if (l == L - 1) { Y = M.Tanh(Yn); }
+                else { Y = M.ReLU(Yn); }
+                
                 //ComputeVariables(l);//no longer necessary
                 SaveAllVariables(l);
                 
@@ -325,9 +330,15 @@ namespace Counter_Console
                 InitVariableGradient();
                 LoadVariables(l);
                 dY = GetBackPropInput(l, targetOutput);
-                dYn = dY * M.ReLU_Prime(Yn);
+
+                //the last output layer uses tanh activation function
+                //the rest use regular RELU
+                if (l == L - 1) { dYn = dY * M.TanhPrime(Yn); }
+                else { dYn = dY * M.ReLU_Prime(Yn); }
+                
                 dX = Wi.T() * dYn;
-                dWi += dYn ^ X;
+                dWi = dYn ^ X;
+                dBi = dYn;
                 SaveVariableGradient(l);
                 
                 //compute new weights

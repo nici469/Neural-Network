@@ -30,7 +30,7 @@ namespace Counter_Console
             brain.InitBatchArrays(myGen.BaseT, myGen.TOutput);
             double error = brain.BatchTrain();
 
-            while(error > 0.17)
+            while(error > 0.1)
             {
                 error = brain.BatchTrain();
                 Console.WriteLine("Approximate SGD error: {0}", error);

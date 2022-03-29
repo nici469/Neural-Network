@@ -319,6 +319,7 @@ namespace Counter_Console
                     dX = Wi.T() * dYn;
 
                     dWi += dYn ^ X;
+                    dBi += dYn;
                     if (t > 0)
                     {
                         Vector yt_1 = new Vector(YJ[l, t - 1]);// y at t-1

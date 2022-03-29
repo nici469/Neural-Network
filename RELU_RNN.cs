@@ -220,7 +220,7 @@ namespace Counter_Console
                 {
                     InitVariableVectors(l, t);
                     X.data = GetInput(l, t);
-                    ComputeVariables(l, t);
+                    ComputeVariables2(l, t);
                     SaveAllVariables(l, t);
                 }
             }
@@ -238,6 +238,11 @@ namespace Counter_Console
 
         }
 
+        /// <summary>
+        /// uses a RELU activation function for all the layers
+        /// </summary>
+        /// <param name="l"></param>
+        /// <param name="t"></param>
         public void ComputeVariables(int l, int t)
         {
             Vector Yt_1;
@@ -251,6 +256,29 @@ namespace Counter_Console
             }
             Yn = Wi * X + Ui * Yt_1 + Bi;
             Y = M.ReLU(Yn);
+        }
+        /// <summary>
+        /// uses a Tanh function as the activation function for the final layer
+        /// while a RELU activation function is used for all the other layers
+        /// </summary>
+        /// <param name="l"></param>
+        /// <param name="t"></param>
+        public void ComputeVariables2(int l, int t)
+        {
+            Vector Yt_1;
+            if (t > 0)
+            {
+                Yt_1.data = YJ[l, t - 1];
+            }
+            else
+            {
+                Yt_1 = new Vector(D);
+            }
+            Yn = Wi * X + Ui * Yt_1 + Bi;
+
+            if(l== L - 1) { Y = M.Tanh(Yn); }
+            else { Y = M.ReLU(Yn); }
+           
         }
 
         /// <summary>
@@ -315,7 +343,11 @@ namespace Counter_Console
                     InitVariableGradient();
                     LoadVariables(l, t);
                     dY = GetBackPropInput(l, t);
-                    dYn = dY * M.ReLU_Prime(Yn);
+
+                    //a tanh activation function is used on the last layer
+                    if (l == L - 1) { dYn = dY * M.TanhPrime(Yn); }
+                    else { dYn = dY * M.ReLU_Prime(Yn); }
+                    //dYn = dY * M.ReLU_Prime(Yn);
                     dX = Wi.T() * dYn;
 
                     dWi += dYn ^ X;

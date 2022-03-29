@@ -40,7 +40,7 @@ namespace Counter_Console
                         X.data = GetInput(l, t);
                     }
                     
-                    ComputeVariables(l, t);
+                    ComputeVariables2(l, t);
                     SaveAllVariables(l, t);
 
                     //extra 

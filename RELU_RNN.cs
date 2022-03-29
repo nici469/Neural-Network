@@ -212,7 +212,7 @@ namespace Counter_Console
         /// </summary>
         public virtual void PropagateForward()
         {
-            for (int l = 0; l < L; l++)
+            for (int l = 0; l < L; l++) 
             {
                 ObtainNodes(l);
                 InitLayerMarices(l);

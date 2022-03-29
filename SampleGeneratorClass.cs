@@ -25,7 +25,7 @@ namespace Counter_Console
             double[] output = new double[vectLength];
             for (int i = 0; i < vectLength; i++)
             {
-                double rand = myRandom.NextDouble();
+                double rand =2* myRandom.NextDouble();
                 //if (rand > 0.3) { output[i] = 1; }
                 //else { output[i] = 1; }
                 

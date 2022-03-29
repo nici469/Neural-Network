@@ -69,7 +69,7 @@ namespace Counter_Console
             SampleGeneratorClass myGenerator = new SampleGeneratorClass();
             //SampleGeneratorTimeless[] genArray = new SampleGeneratorTimeless[1000];
             SampleGeneratorClass[] genArray = new SampleGeneratorClass[30];
-            int tstep = 10;
+            int tstep = 20;
 
             for (int i = 0; i < genArray.Length; i++)
             {

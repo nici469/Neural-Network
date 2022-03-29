@@ -15,7 +15,7 @@ namespace Counter_Console
 
         }
 
-        static void DoSomething3()
+        static void DoSomething3Timeless()
         {
             Console.WriteLine("Beginning NN training: press any key to continue");
             Console.ReadKey(true);
@@ -67,18 +67,20 @@ namespace Counter_Console
         {
             ///SampleGenerator myGenerator = new SampleGenerator();
             SampleGeneratorClass myGenerator = new SampleGeneratorClass();
-            SampleGeneratorTimeless[] genArray = new SampleGeneratorTimeless[1000];
+            //SampleGeneratorTimeless[] genArray = new SampleGeneratorTimeless[1000];
+            SampleGeneratorClass[] genArray = new SampleGeneratorClass[30];
+            int tstep = 10;
 
             for (int i = 0; i < genArray.Length; i++)
             {
-                genArray[i] = new SampleGeneratorTimeless();
-                genArray[i].GenerateData(1);
+                genArray[i] = new SampleGeneratorClass();
+                genArray[i].GenerateData(tstep);
             }
 
             //myGenerator.GenerateData(100);
             //NodeStruct mystruct = new NodeStruct(1, 1);
             //LSTM_NEW brain = new LSTM_NEW(mystruct, new int[] { 5, 5 }, 100);
-            RELU_RNN_NEW brain = new RELU_RNN_NEW(new int[] { genArray[0].BaseT[0].Length,10, 10,10, 5, 1 }, 1);
+            RELU_RNN_NEW brain = new RELU_RNN_NEW(new int[] { genArray[0].BaseT[0].Length,10, 10,10,10, 5, genArray[0].TOutput[0].Length },tstep);
             //brain.T = 10;
             brain.TargetOutputT = myGenerator.TOutput;
             brain.BaseT = myGenerator.BaseT;
@@ -226,7 +228,7 @@ namespace Counter_Console
         }
         static void Main(string[] args)
         {
-            DoSomething3();
+            //DoSomething3Timeless();//tested and works
             DoSomething2();
             Methods M = new Methods();
             double[] v1 = { 1, 2 };

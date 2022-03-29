@@ -15,6 +15,54 @@ namespace Counter_Console
 
         }
 
+        static void DoSomething3()
+        {
+            Console.WriteLine("Beginning NN training: press any key to continue");
+            Console.ReadKey(true);
+
+            RELUSampleGenerator myGen = new RELUSampleGenerator();
+            myGen.GenerateData(1000);
+            int noOfInpuNodes = myGen.BaseT[0].Length;
+            int noOfOutputNodes = myGen.TOutput[0].Length;
+
+            RELU brain = new RELU(new int[] { noOfInpuNodes, 10,10,5 ,noOfOutputNodes});
+            
+            brain.InitBatchArrays(myGen.BaseT, myGen.TOutput);
+            double error = brain.BatchTrain();
+
+            while(error > 0.17)
+            {
+                error = brain.BatchTrain();
+                Console.WriteLine("Approximate SGD error: {0}", error);
+            }
+            Console.WriteLine("training completed");
+            Console.ReadKey(true);
+
+            while (true) {
+                Console.WriteLine("Beginning Testing Session");
+                Console.WriteLine("type input values to test the ML algorithm::");
+                //var input = Console.ReadLine();
+
+                double[] testInput = new double[noOfInpuNodes];
+                for (int i = 0; i < noOfInpuNodes; i++)
+                {
+                    testInput[i] = double.Parse(Console.ReadLine());
+                }
+                double[] testOutput = brain.PropagateForward(testInput);
+                Console.WriteLine("The Algorithm outputs are:");
+                string outString = "";
+
+                for (int i = 0; i < noOfOutputNodes; i++)
+                {
+                    outString += testOutput[i].ToString() + " ,";
+                }
+                Console.WriteLine(outString);
+            }
+            
+            //if(input=="")
+
+
+        }
         static void DoSomething2()
         {
             ///SampleGenerator myGenerator = new SampleGenerator();
@@ -178,6 +226,7 @@ namespace Counter_Console
         }
         static void Main(string[] args)
         {
+            DoSomething3();
             DoSomething2();
             Methods M = new Methods();
             double[] v1 = { 1, 2 };

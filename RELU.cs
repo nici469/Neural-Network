@@ -7,7 +7,7 @@ namespace Counter_Console
 {
     class RELU
     {
-        public RELU(int[] Nodes, int tStep)
+        public RELU(int[] Nodes)
         {
             L = Nodes.Length - 1;
             
@@ -20,7 +20,7 @@ namespace Counter_Console
             M = new Methods();
         }
 
-        public virtual void InitJgdArrays()
+        void InitJgdArrays()
         {
             //the wweights
             WIJ = new double[L][,];
@@ -59,15 +59,15 @@ namespace Counter_Console
         /// <summary>
         /// the total number of layers
         /// </summary>
-        public int L;//the total number of layers
+        int L;//the total number of layers
         /// <summary>
         /// the number of output nodes for a given layer... must be set for each layer
         /// </summary>
-        public int D;
+        int D;
         /// <summary>
         /// the number of input nodes for a given layer.... must be set for each layer
         /// </summary>
-        public int N;
+        int N;
         /// <summary>
         /// the stochastic learning rate
         /// </summary>
@@ -75,25 +75,25 @@ namespace Counter_Console
         /// <summary>
         /// each index represents whether the weights of a particular layer has been initialised
         /// </summary>
-        public bool[] layerWeightsInitialised;
+        bool[] layerWeightsInitialised;
 
         /// <summary>
         /// the weight jagged arrays
         /// </summary>
-        public double[][,] WIJ;
+        double[][,] WIJ;
         /// <summary>
         /// The bias JGD array
         /// </summary>
-        public double[][] BIJ;
+        double[][] BIJ;
         /// <summary>
         /// stores the number of nodes in each layer
         /// </summary>
-        public int[] nodes;
+        int[] nodes;
         //thwe weights and biases
-        public Matrix Wi, dWi;
-        public Vector Bi, dBi;
+        Matrix Wi, dWi;
+        Vector Bi, dBi;
         /// <summary>
-        /// InputSamples[S] and TargetOutput[S] contain the respective input and training output data arrays
+        /// InputSamples[S][] and TargetOutput[S][] contain the respective input and training output data arrays
         /// for every sample s less than or equal to S.. this are not yet used for now
         /// </summary>
         /// 
@@ -106,16 +106,16 @@ namespace Counter_Console
         /// <summary>
         /// the variable vectors
         /// </summary>
-        public Vector Y, Yn, X;
-        public Vector dY, dYn, dX;
+        Vector Y, Yn, X;
+        Vector dY, dYn, dX;
         /// <summary>
         /// the corresponding variable jagged array [L][]
         /// </summary>
-        public double[][] YJ, YNJ, XJ;
+        double[][] YJ, YNJ, XJ;
         /// <summary>
         /// the corresponding variable gradient jagged array [L][]
         /// </summary>
-        public double[][] DYJ, DYNJ, DXJ;
+        double[][] DYJ, DYNJ, DXJ;
         public Random myRandom = new Random();
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Counter_Console
         /// copies one matrix into another
         /// </summary>
         /// <returns></returns>
-        public double[,] ArrayCopy(double[,] input)
+        double[,] ArrayCopy(double[,] input)
         {
             double[,] output = new double[input.GetLength(0), input.GetLength(1)];
             for (int i = 0; i < input.GetLength(0); i++)
@@ -183,7 +183,7 @@ namespace Counter_Console
         /// copies one array into another
         /// </summary>
         /// <returns></returns>
-        public double[] ArrayCopy(double[] input)
+        double[] ArrayCopy(double[] input)
         {
             double[] output = new double[input.Length];
             for (int j = 0; j < input.Length; j++)
@@ -199,7 +199,7 @@ namespace Counter_Console
         /// if the weights have been previously initialisd, initialises them with random matrices
         /// </summary>
         /// <param name="l"></param>
-        public void InitLayerMarices(int l)
+        void InitLayerMarices(int l)
         {
             //if the weights of a paarticulaar layer have not been initialised, generate them
             if (!layerWeightsInitialised[l])
@@ -222,7 +222,7 @@ namespace Counter_Console
         /// store the weight data in the appropraite jagged arrays
         /// </summary>
         /// <param name="l"></param>
-        public void SaveWeights(int l)
+        void SaveWeights(int l)
         {
             WIJ[l] = ArrayCopy(Wi.data);
             BIJ[l] = ArrayCopy(Bi.data);
@@ -232,9 +232,12 @@ namespace Counter_Console
         /// <summary>
         /// performs the forward and backward propagation through the Neural Network
         /// for all the samples stored in InputSamplesS[S][] and TargetOutputS[S][];
+        /// It returns the stochastic average error over all the samples. it ForwardPropagates withs one sample instance, computes error,
+        /// ,backward propages, and repeats the process with the next instance.
         /// </summary>
-        public virtual void BatchTrain()
+        public virtual double BatchTrain()
         {
+            double error = 0;
             //get the number of training samples
             int S = InputSamplesS.Length;
             //if the batch data has not been initialised and this method is called, throw n exception
@@ -249,16 +252,40 @@ namespace Counter_Console
             for(int i = 0; i < S; i++)
             {
                 double[] inputInstance = ArrayCopy( InputSamplesS[i]);
-                PropagateForward(inputInstance);
-                ComputeError(TargetOutputS[i]);
+                double[] NNPrediction= PropagateForward(inputInstance);//let this return an output
+                double instanceError =ComputeError(TargetOutputS[i],NNPrediction);//let that output be used here
+
+                error += instanceError / S;
                 double[] targetOutputInstance= ArrayCopy(TargetOutputS[i]);
                 PropagateBackward(targetOutputInstance);
             }
+            return error;
         }
         /// <summary>
-        /// forward propagation for a single sample instance
+        /// to compute the sum of the squared difference betewen corresponding elements of 
+        /// data1 and data2 arrays, i.e (Sum[(data1[i]-data2[i])^2])/dataLength
         /// </summary>
-        public virtual void PropagateForward(double[] input)
+        /// <param name="data1"></param>
+        /// <param name="data2"></param>
+        /// <returns></returns>
+        public double ComputeError(double[] data1, double[] data2)
+        {
+            double error = 0;
+            //check to be sure both arrays are of the same size
+            if (data1.Length != data2.Length) throw new Exception("Cannot compute error: data sizes do not match");
+            Vector diff = new Vector(M.elemSub(data1, data2));
+            //compute the vector containing all the squared errors
+            double[] squaredError = (diff * diff).data;
+            error = (M.Summation(squaredError))/(squaredError.Length);
+            return error;
+
+        }
+
+        /// <summary>
+        /// forward propagation for a single sample instance.
+        /// it returns the output of the final layer of the neural network
+        /// </summary>
+        public virtual double[] PropagateForward(double[] input)
         {
             for (int l = 0; l < L; l++)
             {
@@ -266,14 +293,21 @@ namespace Counter_Console
                 InitLayerMarices(l);
                 
                 InitVariableVectors(l);
-                X.data = input;
+                //if l=0(first layer), Xis gotten from the function input,
+                //else it is gotten from the output of the layer below
+                if (l == 0) { X.data = input; }
+                else { X.data = ArrayCopy(YJ[l-1]); }
                 Yn = Wi * X + Bi;
                 Y = M.ReLU(Yn);
                 //ComputeVariables(l);//no longer necessary
                 SaveAllVariables(l);
                 
             }
+            double[] output = ArrayCopy(Y.data);
+            return output;
         }
+
+        
 
         /// <summary>
         /// Backward propagation for a single sample instance
@@ -308,7 +342,7 @@ namespace Counter_Console
         /// </summary>
         /// <param name="l"></param>
         /// <param name="t"></param>
-        public void SaveVariableGradient(int l)
+        void SaveVariableGradient(int l)
         {
             DYJ[l] = dY.data;
             DYNJ[l] = dYn.data;
@@ -323,7 +357,7 @@ namespace Counter_Console
         /// <param name="l"></param>
         /// <param name="targetOutput"></param>
         /// <returns></returns>
-        public Vector GetBackPropInput(int l, double[] targetOutput)
+        Vector GetBackPropInput(int l, double[] targetOutput)
         {
             Vector Del;
             //get del from the layer above or from the targetOutput
@@ -339,7 +373,7 @@ namespace Counter_Console
         /// loads the vectors Y,Yn and X
         /// </summary>
         /// <param name="l"></param>
-        public void LoadVariables(int l)
+        void LoadVariables(int l)
         {
             Y.data = YJ[l];
             Yn.data = YNJ[l];
@@ -349,7 +383,7 @@ namespace Counter_Console
         /// <summary>
         /// intialises the matrix data of dWI, dUi, and dBi to zero vectors
         /// </summary>
-        public void InitWeightGradients()
+        void InitWeightGradients()
         {
             dWi.data = new double[D, N];
             dBi.data = new double[D];
@@ -358,7 +392,7 @@ namespace Counter_Console
         /// <summary>
         /// initialise all variable gradient vector data to zero length arrays
         /// </summary>
-        public void InitVariableGradient()
+        void InitVariableGradient()
         {
             dY.data = new double[0];
             dYn.data = new double[0];
@@ -369,7 +403,7 @@ namespace Counter_Console
         /// saves Y,Yn and X to the corresponding jagged arrays
         /// </summary>
         /// <param name="l"></param>
-        public void SaveAllVariables(int l)
+        void SaveAllVariables(int l)
         {
             YJ[l] = Y.data;
             YNJ[l] = Yn.data;
@@ -389,7 +423,7 @@ namespace Counter_Console
         /// 
         /// </summary>
         /// <param name="l"></param>
-        public void ObtainNodes(int l)
+        void ObtainNodes(int l)
         {
             //string[] nodes = File.ReadAllLines("Nodes.txt");
             N = nodes[l];
@@ -402,7 +436,7 @@ namespace Counter_Console
         /// </summary>
         /// <param name="l"></param>
         /// <param name="t"></param>
-        public void InitVariableVectors(int l)
+        void InitVariableVectors(int l)
         {
             Y.data = new double[0];
             Yn.data = new double[0];

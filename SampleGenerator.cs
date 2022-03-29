@@ -174,4 +174,101 @@ namespace Counter_Console
 
     }
 
+    /// <summary>
+    /// A class for generating samples to train a non-recurrent (non-time-series) neural network
+    /// </summary>
+    class RELUSampleGenerator
+    {
+        public RELUSampleGenerator()
+        {
+            
+        }
+        /// <summary>
+        /// a random number object
+        /// </summary>
+        static Random myRandom = new Random();
+
+        
+
+        /// <summary>
+        /// returns an array of length vecLength containing random real
+        /// numbers between 0 and 10
+        /// </summary>
+        /// <param name="vectLength"></param>
+        /// <returns></returns>
+        double[] GenRandomINput(int vectLength)
+        {
+
+            double[] output = new double[vectLength];
+            for (int i = 0; i < vectLength; i++)
+            {
+                double rand = myRandom.NextDouble();
+
+                output[i] = rand * 10;
+                //output[i] = myRandom.Next(0,2);
+            }
+            return output;
+        }
+        
+        /// <summary>
+        /// for computing any custoom function based on the input array to be used for training 
+        /// a non-timeseries (non-recurrent) neural network
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        double[] ComputeCustomFunction(double[] vector)
+        {
+            double out1 = -1, out2 = 0, out3 = 0;
+            double count = 0;
+            //get the sum of the vector elements.
+            ///simple y=x classifier
+            double y = vector[0];
+            double x = vector[1];
+            if (y > x+2)
+            {
+                out1 = -1;
+            }
+            else
+            {
+                out1 = 1;
+            }
+            
+            return new double[] { out1 };//, out2, out3 };
+        }
+        public double[][] BaseT;
+        public double[][] TOutput;
+
+        /// <summary>
+        /// Generates S number of non-recurrent Training data samples 
+        /// to be stored in the object BaseT[S][] and TOutput[S][] jagged arrays
+        /// </summary>
+        /// <param name="S"></param>
+        public void GenerateData(int S)
+        {
+            BaseT = new double[S][];
+            TOutput = new double[S][];
+            for (int s = 0; s < S; s++)
+            {
+                double[] baseInput = GenRandomINput(2);
+                double[] targetOutPut = ComputeCustomFunction(baseInput);
+                BaseT[s] = baseInput;
+                TOutput[s] = targetOutPut;
+
+            }
+        }
+        void Save(int[] data, string fileName)
+        {
+            StreamWriter sw = new StreamWriter(fileName);
+            using (sw)
+            {
+                sw.WriteLine(data.Length);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sw.WriteLine(data[i]);
+                }
+            }
+        }
+
+    }
+
 }

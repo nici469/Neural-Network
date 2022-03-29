@@ -31,6 +31,20 @@ namespace Counter_Console
             }
             return output;
         }
+        /// <summary>
+        /// computes the sum of all the elements of an array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public double Summation(double[] data)
+        {
+            double outData = 0;
+            for(int i = 0; i < data.Length; i++)
+            {
+                outData += data[i];
+            }
+            return outData;
+        }
 
         /// <summary>
         /// returns the transpose of the specified matrix[,]....M-CHECKED

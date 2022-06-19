@@ -1,0 +1,11 @@
+C:\Users\KingofErk\Documents\Visual Studio 2015\Projects\LSTM Console\Counter Console\bin\Debug\Counter Console.exe
+C:\Users\KingofErk\Documents\Visual Studio 2015\Projects\LSTM Console\Counter Console\bin\Debug\Counter Console.pdb
+C:\Users\KingofErk\Documents\Visual Studio 2015\Projects\LSTM Console\Counter Console\obj\Debug\Counter Console.csprojResolveAssemblyReference.cache
+C:\Users\KingofErk\Documents\Visual Studio 2015\Projects\LSTM Console\Counter Console\obj\Debug\Counter Console.exe
+C:\Users\KingofErk\Documents\Visual Studio 2015\Projects\LSTM Console\Counter Console\obj\Debug\Counter Console.pdb
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\bin\Debug\Counter Console.exe
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\bin\Debug\Counter Console.pdb
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\obj\Debug\Counter Console.csprojAssemblyReference.cache
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\obj\Debug\Counter Console.csproj.CoreCompileInputs.cache
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\obj\Debug\Counter Console.exe
+C:\Users\IT-IandE\Documents\Efficiency Code Projects\Counter Console_RELU_RNN2,3,1 works\obj\Debug\Counter Console.pdb

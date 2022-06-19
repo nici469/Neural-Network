@@ -29,7 +29,8 @@ namespace Counter_Console
                 //if (rand > 0.3) { output[i] = 1; }
                 //else { output[i] = 1; }
                 
-                output[i] = 1;//output[i] = rand;
+                output[i] = 1;//
+                //output[i] = rand;
                 //output[i] = myRandom.Next(0,2);
             }
             return output;
